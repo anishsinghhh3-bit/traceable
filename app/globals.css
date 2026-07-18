@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+@theme {
+  --color-forest-50: #EAF3DE;
+  --color-forest-100: #C0DD97;
+  --color-forest-200: #97C459;
+  --color-forest-400: #639922;
+  --color-forest-600: #3B6D11;
+  --color-forest-800: #27500A;
+  --color-forest-900: #173404;
+  --font-sans: var(--font-inter), sans-serif;
+}
+
+body {
+  background: #FAFAF7;
+  color: #1A1A18;
+}
