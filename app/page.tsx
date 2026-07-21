@@ -13,9 +13,7 @@ export default function Home() {
           <a href="#" className="hover:text-forest-900 transition-colors">Pricing</a>
           <a href="#" className="hover:text-forest-900 transition-colors">Docs</a>
         </div>
-        <button className="text-sm font-medium px-4 py-2 rounded-lg bg-forest-800 text-white hover:bg-forest-900 transition-colors">
-          Sign in
-        </button>
+        <a href="/login" className="text-sm font-medium px-4 py-2 rounded-lg bg-forest-800 text-white hover:bg-forest-900 transition-colors">Sign in</a>
       </nav>
 
       <section className="max-w-6xl mx-auto px-8 pt-20 pb-24 grid md:grid-cols-2 gap-16 items-center">
@@ -31,10 +29,8 @@ export default function Home() {
             control built specifically for food and beverage product development.
           </p>
           <div className="flex items-center gap-4">
-            <button className="px-6 py-3 rounded-lg bg-forest-800 text-white font-medium hover:bg-forest-900 transition-colors">
-              Get started
-            </button>
-            <button className="px-6 py-3 rounded-lg border border-black/10 text-forest-900 font-medium hover:bg-black/[0.02] transition-colors">
+            <a href="/login" className="px-6 py-3 rounded-lg bg-forest-800 text-white font-medium hover:bg-forest-900 transition-colors">Get started</a>
+            <button className="px-6 py-3 rounded-lg border border-black/10 text-forest-900 font-medium hover:bg-black/2 transition-colors">
               See how it works
             </button>
           </div>
