@@ -41,10 +41,10 @@ export default function Dashboard() {
   }
 
   useEffect(() => {
-    loadRecipes();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  void loadRecipes();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, []);
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
     if (!newName.trim()) return;
@@ -90,10 +90,7 @@ export default function Dashboard() {
         </div>
         <div className="flex items-center gap-4">
           <span className="text-sm text-black/50">{userEmail}</span>
-          <button
-            onClick={handleSignOut}
-            className="text-sm font-medium px-4 py-2 rounded-lg border border-black/10 text-forest-900 hover:bg-black/2 transition-colors"
-          >
+          <button onClick={handleSignOut} className="text-sm font-medium px-4 py-2 rounded-lg border border-black/10 text-forest-900 hover:bg-black/2 transition-colors">
             Sign out
           </button>
         </div>
@@ -107,19 +104,13 @@ export default function Dashboard() {
               {recipes.length} {recipes.length === 1 ? "recipe" : "recipes"}
             </p>
           </div>
-          <button
-            onClick={() => setShowForm(!showForm)}
-            className="px-4 py-2.5 rounded-lg bg-forest-800 text-white font-medium text-sm hover:bg-forest-900 transition-colors"
-          >
+          <button onClick={() => setShowForm(!showForm)} className="px-4 py-2.5 rounded-lg bg-forest-800 text-white font-medium text-sm hover:bg-forest-900 transition-colors">
             + New recipe
           </button>
         </div>
 
         {showForm && (
-          <form
-            onSubmit={handleCreate}
-            className="bg-white border border-black/5 rounded-2xl p-6 mb-8 flex items-end gap-3"
-          >
+          <form onSubmit={handleCreate} className="bg-white border border-black/5 rounded-2xl p-6 mb-8 flex items-end gap-3">
             <div className="flex-1">
               <label className="block text-sm font-medium text-black/70 mb-1.5">
                 Recipe name
@@ -133,11 +124,7 @@ export default function Dashboard() {
                 className="w-full px-3 py-2.5 rounded-lg border border-black/10 text-sm focus:outline-none focus:ring-2 focus:ring-forest-400"
               />
             </div>
-            <button
-              type="submit"
-              disabled={creating}
-              className="px-5 py-2.5 rounded-lg bg-forest-800 text-white font-medium text-sm hover:bg-forest-900 transition-colors disabled:opacity-50"
-            >
+            <button type="submit" disabled={creating} className="px-5 py-2.5 rounded-lg bg-forest-800 text-white font-medium text-sm hover:bg-forest-900 transition-colors disabled:opacity-50">
               {creating ? "Creating..." : "Create"}
             </button>
           </form>
@@ -152,10 +139,7 @@ export default function Dashboard() {
         ) : (
           <div className="grid gap-3">
             {recipes.map((recipe) => (
-              <div
-                key={recipe.id}
-                className="bg-white border border-black/5 rounded-2xl p-5 flex items-center justify-between hover:border-black/10 transition-colors"
-              >
+              <a key={recipe.id} href={`/recipes/${recipe.id}`} className="bg-white border border-black/5 rounded-2xl p-5 flex items-center justify-between hover:border-black/10 transition-colors">
                 <div>
                   <p className="font-medium text-forest-900">{recipe.name}</p>
                   <p className="text-sm text-black/40 mt-0.5">
@@ -166,7 +150,7 @@ export default function Dashboard() {
                 <span className="text-xs px-2.5 py-1 rounded-md bg-forest-50 text-forest-800 font-medium">
                   {recipe.status}
                 </span>
-              </div>
+              </a>
             ))}
           </div>
         )}
