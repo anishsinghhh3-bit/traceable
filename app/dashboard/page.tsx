@@ -92,12 +92,34 @@ export default function Dashboard() {
   }
 
   if (loading) {
-    return (
-      <main className="min-h-screen flex items-center justify-center">
-        <p className="text-black/40 text-sm">Loading...</p>
-      </main>
-    );
-  }
+  return (
+    <main className="min-h-screen">
+      <nav className="flex items-center justify-between px-8 py-5 border-b border-black/5 max-w-6xl mx-auto">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-md bg-forest-800 flex items-center justify-center">
+            <span className="text-white text-sm font-medium">T</span>
+          </div>
+          <span className="text-lg font-medium text-forest-900">Traceable</span>
+        </div>
+      </nav>
+      <div className="max-w-6xl mx-auto px-8 py-10">
+        <div className="h-7 w-32 bg-black/5 rounded-lg animate-pulse mb-2"></div>
+        <div className="h-4 w-20 bg-black/5 rounded-lg animate-pulse mb-8"></div>
+        <div className="grid gap-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="bg-white border border-black/5 rounded-2xl p-5 flex items-center justify-between">
+              <div>
+                <div className="h-4 w-40 bg-black/5 rounded-lg animate-pulse mb-2"></div>
+                <div className="h-3 w-28 bg-black/5 rounded-lg animate-pulse"></div>
+              </div>
+              <div className="h-6 w-14 bg-black/5 rounded-md animate-pulse"></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </main>
+  );
+}
 
   return (
     <main className="min-h-screen">
@@ -151,12 +173,19 @@ export default function Dashboard() {
         )}
 
         {recipes.length === 0 ? (
-          <div className="text-center py-20 bg-white border border-black/5 rounded-2xl">
-            <p className="text-black/40 text-sm">
-              No recipes yet. Create your first one to get started.
-            </p>
-          </div>
-        ) : (
+  <div className="text-center py-20 bg-white border border-black/5 rounded-2xl">
+    <div className="w-12 h-12 rounded-xl bg-forest-50 flex items-center justify-center mx-auto mb-4">
+      <div className="w-5 h-5 rounded-sm bg-forest-800"></div>
+    </div>
+    <p className="text-black/70 font-medium mb-1">No recipes yet</p>
+    <p className="text-black/40 text-sm mb-6">
+      Create your first recipe to start tracking versions and compliance.
+    </p>
+    <button onClick={() => setShowForm(true)} className="px-5 py-2.5 rounded-lg bg-forest-800 text-white font-medium text-sm hover:bg-forest-900 transition-colors">
+      + New recipe
+    </button>
+  </div>
+) : (
           <div className="grid gap-3">
             {recipes.map((recipe) => (
               <a key={recipe.id} href={`/recipes/${recipe.id}`} className="bg-white border border-black/5 rounded-2xl p-5 flex items-center justify-between hover:border-black/10 transition-colors">
