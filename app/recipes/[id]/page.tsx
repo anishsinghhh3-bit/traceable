@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import Link from "next/link";
+import { ArrowLeft, Plus, GitCommit } from "lucide-react";
 import { createClient } from "../../lib/supabase/client";
 
 type Recipe = {
@@ -74,7 +76,6 @@ export default function RecipeDetail() {
 
   async function toggleCheck(check: ComplianceCheck) {
     const nowChecked = !check.is_checked;
-
     setChecks((prev) =>
       prev.map((c) =>
         c.id === check.id
@@ -82,7 +83,6 @@ export default function RecipeDetail() {
           : c
       )
     );
-
     await supabase
       .from("compliance_checks")
       .update({
@@ -99,11 +99,7 @@ export default function RecipeDetail() {
 
     const { error: versionError } = await supabase
       .from("recipe_versions")
-      .insert({
-        recipe_id: recipeId,
-        version: newVersion.trim(),
-        notes: newNotes.trim() || null,
-      });
+      .insert({ recipe_id: recipeId, version: newVersion.trim(), notes: newNotes.trim() || null });
 
     if (!versionError) {
       await supabase
@@ -141,15 +137,16 @@ export default function RecipeDetail() {
   return (
     <main className="min-h-screen">
       <nav className="flex items-center justify-between px-8 py-5 border-b border-black/5 max-w-6xl mx-auto">
-        <a href="/dashboard" className="flex items-center gap-2">
+        <Link href="/dashboard" className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-md bg-forest-800 flex items-center justify-center">
             <span className="text-white text-sm font-medium">T</span>
           </div>
           <span className="text-lg font-medium text-forest-900">Traceable</span>
-        </a>
-        <a href="/dashboard" className="text-sm font-medium text-black/50 hover:text-forest-900 transition-colors">
-          ← Back to recipes
-        </a>
+        </Link>
+        <Link href="/dashboard" className="flex items-center gap-1.5 text-sm font-medium text-black/50 hover:text-forest-900 transition-colors">
+          <ArrowLeft className="w-3.5 h-3.5" />
+          Back to recipes
+        </Link>
       </nav>
 
       <div className="max-w-3xl mx-auto px-8 py-10">
@@ -159,9 +156,7 @@ export default function RecipeDetail() {
             {recipe.status}
           </span>
         </div>
-        <p className="text-sm text-black/50 mb-10">
-          Current version: {recipe.version}
-        </p>
+        <p className="text-sm text-black/50 mb-10">Current version: {recipe.version}</p>
 
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-sm font-medium text-black/70">Compliance checklist</h2>
@@ -177,7 +172,7 @@ export default function RecipeDetail() {
             </p>
           ) : (
             checks.map((check) => (
-              <label key={check.id} className="flex items-center gap-3 px-5 py-3.5 cursor-pointer hover:bg-black/[0.015] transition-colors">
+              <label key={check.id} className="flex items-center gap-3 px-5 py-3.5 cursor-pointer hover:bg-black/1.5 transition-colors">
                 <input
                   type="checkbox"
                   checked={check.is_checked}
@@ -199,17 +194,16 @@ export default function RecipeDetail() {
 
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-sm font-medium text-black/70">Version history</h2>
-          <button onClick={() => setShowForm(!showForm)} className="text-sm font-medium px-3 py-1.5 rounded-lg bg-forest-800 text-white hover:bg-forest-900 transition-colors">
-            + Log new version
+          <button onClick={() => setShowForm(!showForm)} className="flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg bg-forest-800 text-white hover:bg-forest-900 transition-colors">
+            <Plus className="w-3.5 h-3.5" />
+            Log new version
           </button>
         </div>
 
         {showForm && (
           <form onSubmit={handleAddVersion} className="bg-white border border-black/5 rounded-2xl p-6 mb-6 space-y-4">
             <div>
-              <label className="block text-sm font-medium text-black/70 mb-1.5">
-                Version label
-              </label>
+              <label className="block text-sm font-medium text-black/70 mb-1.5">Version label</label>
               <input
                 type="text"
                 required
@@ -220,9 +214,7 @@ export default function RecipeDetail() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-black/70 mb-1.5">
-                What changed
-              </label>
+              <label className="block text-sm font-medium text-black/70 mb-1.5">What changed</label>
               <textarea
                 value={newNotes}
                 onChange={(e) => setNewNotes(e.target.value)}
@@ -239,6 +231,9 @@ export default function RecipeDetail() {
 
         {versions.length === 0 ? (
           <div className="text-center py-16 bg-white border border-black/5 rounded-2xl">
+            <div className="w-12 h-12 rounded-xl bg-forest-50 flex items-center justify-center mx-auto mb-4">
+              <GitCommit className="w-5 h-5 text-forest-800" />
+            </div>
             <p className="text-black/40 text-sm">
               No version history yet. Log the first change above.
             </p>
@@ -247,15 +242,14 @@ export default function RecipeDetail() {
           <div className="space-y-3">
             {versions.map((v) => (
               <div key={v.id} className="bg-white border border-black/5 rounded-2xl p-5">
-                <div className="flex items-center justify-between mb-1.5">
+                <div className="flex items-center gap-2 mb-1.5">
+                  <GitCommit className="w-3.5 h-3.5 text-forest-800" />
                   <span className="font-medium text-forest-900">{v.version}</span>
-                  <span className="text-xs text-black/40">
+                  <span className="text-xs text-black/40 ml-auto">
                     {new Date(v.created_at).toLocaleString()}
                   </span>
                 </div>
-                {v.notes && (
-                  <p className="text-sm text-black/60">{v.notes}</p>
-                )}
+                {v.notes && <p className="text-sm text-black/60 pl-5.5">{v.notes}</p>}
               </div>
             ))}
           </div>

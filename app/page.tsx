@@ -1,3 +1,5 @@
+import { ClipboardCheck, GitBranch, Users, ArrowRight } from "lucide-react";
+
 export default function Home() {
   return (
     <main className="min-h-screen">
@@ -10,8 +12,7 @@ export default function Home() {
         </div>
         <div className="hidden md:flex items-center gap-8 text-sm text-black/60">
           <a href="#features" className="hover:text-forest-900 transition-colors">Features</a>
-          <a href="#" className="hover:text-forest-900 transition-colors">Pricing</a>
-          <a href="#" className="hover:text-forest-900 transition-colors">Docs</a>
+          <a href="/pricing" className="hover:text-forest-900 transition-colors">Pricing</a>
         </div>
         <a href="/login" className="text-sm font-medium px-4 py-2 rounded-lg bg-forest-800 text-white hover:bg-forest-900 transition-colors">Sign in</a>
       </nav>
@@ -29,10 +30,13 @@ export default function Home() {
             control built specifically for food and beverage product development.
           </p>
           <div className="flex items-center gap-4">
-            <a href="/login" className="px-6 py-3 rounded-lg bg-forest-800 text-white font-medium hover:bg-forest-900 transition-colors">Get started</a>
-            <button className="px-6 py-3 rounded-lg border border-black/10 text-forest-900 font-medium hover:bg-black/2 transition-colors">
-              See how it works
-            </button>
+            <a href="/login" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-forest-800 text-white font-medium hover:bg-forest-900 transition-colors">
+              Get started
+              <ArrowRight className="w-4 h-4" />
+            </a>
+            <a href="/pricing" className="px-6 py-3 rounded-lg border border-black/10 text-forest-900 font-medium hover:bg-black/2 transition-colors">
+              View pricing
+            </a>
           </div>
           <p className="text-sm text-black/40 mt-6">
             No credit card required · Free for your first 3 recipes
@@ -42,9 +46,7 @@ export default function Home() {
         <div className="bg-white rounded-2xl border border-black/5 shadow-sm p-6">
           <div className="flex items-center justify-between mb-5">
             <span className="text-sm font-medium text-forest-900">Sourdough starter v4</span>
-            <span className="text-xs px-2.5 py-1 rounded-md bg-forest-50 text-forest-800 font-medium">
-              approved
-            </span>
+            <span className="text-xs px-2.5 py-1 rounded-md bg-forest-50 text-forest-800 font-medium">approved</span>
           </div>
           <div className="space-y-3 mb-5">
             <div className="flex justify-between text-sm py-2 border-b border-black/5">
@@ -76,7 +78,7 @@ export default function Home() {
         <div className="grid md:grid-cols-3 gap-8">
           <div>
             <div className="w-10 h-10 rounded-lg bg-forest-50 flex items-center justify-center mb-4">
-              <div className="w-4 h-4 rounded-sm bg-forest-800"></div>
+              <GitBranch className="w-5 h-5 text-forest-800" />
             </div>
             <h3 className="font-medium text-forest-900 mb-2">Recipe version control</h3>
             <p className="text-sm text-black/60 leading-relaxed">
@@ -86,7 +88,7 @@ export default function Home() {
           </div>
           <div>
             <div className="w-10 h-10 rounded-lg bg-forest-50 flex items-center justify-center mb-4">
-              <div className="w-4 h-4 rounded-sm bg-forest-800"></div>
+              <ClipboardCheck className="w-5 h-5 text-forest-800" />
             </div>
             <h3 className="font-medium text-forest-900 mb-2">Compliance checklists</h3>
             <p className="text-sm text-black/60 leading-relaxed">
@@ -96,7 +98,7 @@ export default function Home() {
           </div>
           <div>
             <div className="w-10 h-10 rounded-lg bg-forest-50 flex items-center justify-center mb-4">
-              <div className="w-4 h-4 rounded-sm bg-forest-800"></div>
+              <Users className="w-5 h-5 text-forest-800" />
             </div>
             <h3 className="font-medium text-forest-900 mb-2">Team collaboration</h3>
             <p className="text-sm text-black/60 leading-relaxed">
