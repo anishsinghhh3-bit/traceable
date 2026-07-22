@@ -20,6 +20,13 @@ type Version = {
   created_at: string;
 };
 
+type ComplianceCheck = {
+  id: string;
+  label: string;
+  is_checked: boolean;
+  checked_at: string | null;
+};
+
 export default function RecipeDetail() {
   const params = useParams();
   const recipeId = params.id as string;
@@ -27,6 +34,7 @@ export default function RecipeDetail() {
 
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [versions, setVersions] = useState<Version[]>([]);
+  const [checks, setChecks] = useState<ComplianceCheck[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [newVersion, setNewVersion] = useState("");
@@ -46,8 +54,15 @@ export default function RecipeDetail() {
       .eq("recipe_id", recipeId)
       .order("created_at", { ascending: false });
 
+    const { data: checkData } = await supabase
+      .from("compliance_checks")
+      .select("*")
+      .eq("recipe_id", recipeId)
+      .order("created_at", { ascending: true });
+
     setRecipe(recipeData);
     setVersions(versionData ?? []);
+    setChecks(checkData ?? []);
     setLoading(false);
   }
 
@@ -56,6 +71,26 @@ export default function RecipeDetail() {
     void loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [recipeId]);
+
+  async function toggleCheck(check: ComplianceCheck) {
+    const nowChecked = !check.is_checked;
+
+    setChecks((prev) =>
+      prev.map((c) =>
+        c.id === check.id
+          ? { ...c, is_checked: nowChecked, checked_at: nowChecked ? new Date().toISOString() : null }
+          : c
+      )
+    );
+
+    await supabase
+      .from("compliance_checks")
+      .update({
+        is_checked: nowChecked,
+        checked_at: nowChecked ? new Date().toISOString() : null,
+      })
+      .eq("id", check.id);
+  }
 
   async function handleAddVersion(e: React.FormEvent) {
     e.preventDefault();
@@ -100,6 +135,9 @@ export default function RecipeDetail() {
     );
   }
 
+  const checkedCount = checks.filter((c) => c.is_checked).length;
+  const allChecked = checks.length > 0 && checkedCount === checks.length;
+
   return (
     <main className="min-h-screen">
       <nav className="flex items-center justify-between px-8 py-5 border-b border-black/5 max-w-6xl mx-auto">
@@ -121,9 +159,43 @@ export default function RecipeDetail() {
             {recipe.status}
           </span>
         </div>
-        <p className="text-sm text-black/50 mb-8">
+        <p className="text-sm text-black/50 mb-10">
           Current version: {recipe.version}
         </p>
+
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-sm font-medium text-black/70">Compliance checklist</h2>
+          <span className={`text-xs font-medium px-2.5 py-1 rounded-md ${allChecked ? "bg-forest-50 text-forest-800" : "bg-black/5 text-black/50"}`}>
+            {checkedCount}/{checks.length} complete
+          </span>
+        </div>
+
+        <div className="bg-white border border-black/5 rounded-2xl divide-y divide-black/5 mb-10">
+          {checks.length === 0 ? (
+            <p className="text-sm text-black/40 px-5 py-8 text-center">
+              No compliance items for this recipe yet.
+            </p>
+          ) : (
+            checks.map((check) => (
+              <label key={check.id} className="flex items-center gap-3 px-5 py-3.5 cursor-pointer hover:bg-black/[0.015] transition-colors">
+                <input
+                  type="checkbox"
+                  checked={check.is_checked}
+                  onChange={() => toggleCheck(check)}
+                  className="w-4 h-4 rounded border-black/20 text-forest-800 focus:ring-forest-400"
+                />
+                <span className={`text-sm flex-1 ${check.is_checked ? "text-black/40 line-through" : "text-black/80"}`}>
+                  {check.label}
+                </span>
+                {check.checked_at && (
+                  <span className="text-xs text-black/30">
+                    {new Date(check.checked_at).toLocaleDateString()}
+                  </span>
+                )}
+              </label>
+            ))
+          )}
+        </div>
 
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-sm font-medium text-black/70">Version history</h2>

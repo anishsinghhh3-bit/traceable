@@ -41,10 +41,11 @@ export default function Dashboard() {
   }
 
   useEffect(() => {
-  // eslint-disable-next-line react-hooks/set-state-in-effect
-  void loadRecipes();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-}, []);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void loadRecipes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
     if (!newName.trim()) return;
@@ -53,12 +54,31 @@ export default function Dashboard() {
     const { data: userData } = await supabase.auth.getUser();
     if (!userData.user) return;
 
-    const { error } = await supabase.from("recipes").insert({
-      name: newName.trim(),
-      user_id: userData.user.id,
-    });
+    const { data: newRecipe, error } = await supabase
+      .from("recipes")
+      .insert({
+        name: newName.trim(),
+        user_id: userData.user.id,
+      })
+      .select()
+      .single();
 
-    if (!error) {
+    if (!error && newRecipe) {
+      const standardChecks = [
+        "Allergen labeling reviewed",
+        "Ingredient sourcing verified",
+        "Nutritional info calculated",
+        "Shelf-life / storage guidance confirmed",
+        "Packaging claims match regulations",
+      ];
+
+      await supabase.from("compliance_checks").insert(
+        standardChecks.map((label) => ({
+          recipe_id: newRecipe.id,
+          label,
+        }))
+      );
+
       setNewName("");
       setShowForm(false);
       await loadRecipes();
