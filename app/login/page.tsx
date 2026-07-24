@@ -1,10 +1,25 @@
 "use client";
-import Link from "next/link";
-import { useState } from "react";
+
+import { useState, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { Mail, Lock, Loader2 } from "lucide-react";
 import { createClient } from "../lib/supabase/client";
+import Link from "next/link";
 
-export default function LoginPage() {
+const errorMessages: Record<string, string> = {
+  "Invalid login credentials": "Incorrect email or password.",
+  "User already registered": "An account with this email already exists.",
+  "Email not confirmed": "Please confirm your email before signing in.",
+};
+
+function friendlyError(message: string) {
+  return errorMessages[message] ?? "Something went wrong. Please try again.";
+}
+
+function LoginForm() {
+  const searchParams = useSearchParams();
+  const plan = searchParams.get("plan") ?? "starter";
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [mode, setMode] = useState<"signin" | "signup">("signin");
@@ -14,6 +29,22 @@ export default function LoginPage() {
 
   const supabase = createClient();
 
+  async function ensureSubscription(userId: string) {
+    const { data: existing } = await supabase
+      .from("subscriptions")
+      .select("id")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (!existing) {
+      await supabase.from("subscriptions").insert({
+        user_id: userId,
+        plan: plan === "growth" || plan === "enterprise" ? "starter" : plan,
+        status: "active",
+      });
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
@@ -22,17 +53,19 @@ export default function LoginPage() {
     if (mode === "signup") {
       const { data, error } = await supabase.auth.signUp({ email, password });
       if (error) {
-        setError(error.message);
-      } else if (data.session) {
+        setError(friendlyError(error.message));
+      } else if (data.session && data.user) {
+        await ensureSubscription(data.user.id);
         window.location.href = "/dashboard";
       } else {
         setCheckEmail(true);
       }
     } else {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
-        setError(error.message);
-      } else {
+        setError(friendlyError(error.message));
+      } else if (data.user) {
+        await ensureSubscription(data.user.id);
         window.location.href = "/dashboard";
       }
     }
@@ -61,7 +94,10 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         <Link href="/" className="flex items-center gap-2 justify-center mb-8">
           <div className="w-7 h-7 rounded-md bg-forest-800 flex items-center justify-center">
-            <span className="text-white text-sm font-medium">T</span>
+            <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M4 6L9 11" stroke="white" strokeWidth="2.5" strokeLinecap="round" opacity="0.5" />
+              <path d="M4 13L9 18L20 6" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
           </div>
           <span className="text-lg font-medium text-forest-900">Traceable</span>
         </Link>
@@ -73,49 +109,60 @@ export default function LoginPage() {
           {mode === "signin" ? "Welcome back" : "Start tracking recipes and compliance"}
         </p>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-black/70 mb-1.5">Email</label>
-            <div className="relative">
-              <Mail className="w-4 h-4 text-black/30 absolute left-3 top-1/2 -translate-y-1/2" />
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@company.com"
-                className="w-full pl-10 pr-3 py-2.5 rounded-lg border border-black/10 text-sm focus:outline-none focus:ring-2 focus:ring-forest-400"
-              />
+        <form onSubmit={handleSubmit} className="space-y-4" aria-busy={loading}>
+          <fieldset disabled={loading} className="space-y-4">
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-black/70 mb-1.5">
+                Email
+              </label>
+              <div className="relative">
+                <Mail className="w-4 h-4 text-black/30 absolute left-3 top-1/2 -translate-y-1/2" aria-hidden="true" />
+                <input
+                  id="email"
+                  type="email"
+                  required
+                  autoFocus
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@company.com"
+                  className="w-full pl-10 pr-3 py-2.5 rounded-lg border border-black/10 text-sm focus:outline-none focus:ring-2 focus:ring-forest-400 disabled:opacity-50"
+                />
+              </div>
             </div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-black/70 mb-1.5">Password</label>
-            <div className="relative">
-              <Lock className="w-4 h-4 text-black/30 absolute left-3 top-1/2 -translate-y-1/2" />
-              <input
-                type="password"
-                required
-                minLength={6}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="At least 6 characters"
-                className="w-full pl-10 pr-3 py-2.5 rounded-lg border border-black/10 text-sm focus:outline-none focus:ring-2 focus:ring-forest-400"
-              />
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-black/70 mb-1.5">
+                Password
+              </label>
+              <div className="relative">
+                <Lock className="w-4 h-4 text-black/30 absolute left-3 top-1/2 -translate-y-1/2" aria-hidden="true" />
+                <input
+                  id="password"
+                  type="password"
+                  required
+                  minLength={6}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="At least 6 characters"
+                  className="w-full pl-10 pr-3 py-2.5 rounded-lg border border-black/10 text-sm focus:outline-none focus:ring-2 focus:ring-forest-400 disabled:opacity-50"
+                />
+              </div>
             </div>
-          </div>
 
-          {error && (
-            <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg">{error}</p>
-          )}
+            {error && (
+              <p role="alert" className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg">
+                {error}
+              </p>
+            )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-forest-800 text-white font-medium hover:bg-forest-900 transition-colors disabled:opacity-50"
-          >
-            {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-            {loading ? "Please wait" : mode === "signin" ? "Sign in" : "Create account"}
-          </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-forest-800 text-white font-medium hover:bg-forest-900 transition-colors disabled:opacity-50"
+            >
+              {loading && <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />}
+              {loading ? "Please wait" : mode === "signin" ? "Sign in" : "Create account"}
+            </button>
+          </fieldset>
         </form>
 
         <p className="text-sm text-black/50 text-center mt-6">
@@ -137,5 +184,13 @@ export default function LoginPage() {
         </p>
       </div>
     </main>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
   );
 }

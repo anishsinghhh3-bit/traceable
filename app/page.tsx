@@ -6,8 +6,11 @@ export default function Home() {
       <nav className="flex items-center justify-between px-8 py-5 border-b border-black/5 max-w-6xl mx-auto">
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-md bg-forest-800 flex items-center justify-center">
-            <span className="text-white text-sm font-medium">T</span>
-          </div>
+  <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M4 6L9 11" stroke="white" strokeWidth="2.5" strokeLinecap="round" opacity="0.5" />
+    <path d="M4 13L9 18L20 6" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+</div>
           <span className="text-lg font-medium text-forest-900">Traceable</span>
         </div>
         <div className="hidden md:flex items-center gap-8 text-sm text-black/60">
