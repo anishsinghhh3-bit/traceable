@@ -20,9 +20,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} font-sans antialiased`}>
-        {children}
-      </body>
+     <body className={`${inter.variable} font-sans antialiased`}>
+  {children}
+  <script src="https://checkout.razorpay.com/v1/checkout.js" async></script>
+</body>
     </html>
   );
 }
